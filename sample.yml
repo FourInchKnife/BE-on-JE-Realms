@@ -1,0 +1,83 @@
+# 0 = motd
+# 1 = owner
+# 2 = name
+# 3 = address
+# 4 = port
+# 5 = BE username
+# 6 = JE email
+# 7 = JE password
+
+bedrock:
+  address: 0.0.0.0
+  port: 19132
+  clone-remote-port: false
+  motd1: "{0}"
+  motd2: "{1}"
+  server-name: "{2}"
+remote:
+  address: "{3}"
+  port: {4}
+  auth-type: online
+
+floodgate-key-file: public-key.pem
+
+userAuths:
+  {5}:
+    email: "{6}"
+    password: "{7}"
+
+command-suggestions: true
+
+passthrough-motd: false
+passthrough-protocol-name: false
+passthrough-player-counts: false
+legacy-ping-passthrough: false
+ping-passthrough-interval: 3
+
+max-players: 1
+
+debug-mode: false
+
+general-thread-pool: 32
+
+allow-third-party-capes: false
+
+allow-third-party-ears: false
+
+show-cooldown: true
+
+cache-chunks: false
+
+cache-images: 0
+
+above-bedrock-nether-building: true
+
+force-resource-packs: true
+
+# bStats is a stat tracker that is entirely anonymous and tracks only basic information
+# about Geyser, such as how many people are online, how many servers are using Geyser,
+# what OS is being used, etc. You can learn more about bStats here: https://bstats.org/.
+# https://bstats.org/plugin/server-implementation/GeyserMC
+metrics:
+  # If metrics should be enabled
+  enabled: true
+  # UUID of server, don't change!
+  uuid: 7bacd6e5-14ba-47da-8029-faa06f54ac44
+
+# ADVANCED OPTIONS - DO NOT TOUCH UNLESS YOU KNOW WHAT YOU ARE DOING!
+
+# Geyser updates the Scoreboard after every Scoreboard packet, but when Geyser tries to handle
+# a lot of scoreboard packets per second can cause serious lag.
+# This option allows you to specify after how many Scoreboard packets per seconds
+# the Scoreboard updates will be limited to four updates per second.
+scoreboard-packet-threshold: 20
+
+# Allow connections from ProxyPass and Waterdog.
+# See https://www.spigotmc.org/wiki/firewall-guide/ for assistance - use UDP instead of TCP.
+enable-proxy-connections: false
+
+# The internet supports a maximum MTU of 1492 but could cause issues with packet fragmentation.
+# 1400 is the default.
+# mtu: 1400
+
+config-version: 4
