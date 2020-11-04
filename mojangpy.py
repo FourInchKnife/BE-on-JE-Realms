@@ -83,6 +83,12 @@ class Account():
         self.realms = []
         for i in response.json()["servers"]:
             self.realms.append(Realm(self,i))
+    def realm_invites(self):
+        response = self.session.get("https://pc.realms.minecraft.net/invites/pending",cookies=self.cookie)
+        print(response,response.text)
+        self.invites = []
+        for i in response.json()["invites"]:
+            self.invites.append(RealmInvite(self,i))
 
 class Realm():
     def __init__(self,account,data):
@@ -95,3 +101,16 @@ class Realm():
         self.account = account
     def join(self):
         return self.account.session.get("https://pc.realms.minecraft.net/worlds/v1/{0}/join/pc".format(self.id),cookies=self.account.cookie).json()["address"]
+
+class RealmInvite():
+    def __init__(self,account,data):
+        self.id = data["invitationId"]
+        self.name = data["worldName"]
+        self.description = data["worldDescription"]
+        self.owner = Player(data["worldOwnerName"],data["worldOwnerUuid"])
+        self.date = data["date"]
+        self.account = account
+    def accept(self):
+        self.account.session.put("https://pc.realms.minecraft.net/invites/accept/"+self.id,cookies = self.account.cookie)
+    def reject(self):
+        self.account.session.put("https://pc.realms.minecraft.net/invites/reject/"+self.id,cookies = self.account.cookie)
