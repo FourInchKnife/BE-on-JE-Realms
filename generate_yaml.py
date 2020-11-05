@@ -1,15 +1,38 @@
 from mojangpy import Account
-email = input("email:")
-password = input("password:")
+import json
+
+if input("Have you used this before (y/N)?").lower() in ["y","yes"]:
+    store = False
+    with open("creds.json","r") as file:
+        fileJson = json.loads(file.read())
+        try:
+            email = fileJson["email"]
+            password = fileJson["password"]
+        except:
+            email = input("email:")
+            password = input("password:")
+            store = True
+        if store:
+            if input("Do you want to store your login (y/N)?").lower() in ["y","yes"]:
+                with open("creds.json","w") as file:
+                    file.write(json.dumps({"email":email,"password":password,"clientToken":user.clientToken}))
+        user = Account(email,password)
+        user.clientToken = fileJson["clientToken"]
+else:
+    email = input("email:")
+    password = input("password:")
+    user = Account(email,password)
+    user.clientToken = user.gen_uuid()
+    if input("Do you want to store your login (y/N)?").lower() in ["y","yes"]:
+        with open("creds.json","w") as file:
+            file.write(json.dumps({"email":email,"password":password,"clientToken":user.clientToken}))
+    else:
+        with open("creds.json","w") as file:
+            file.write(json.dumps({"clientToken":user.clientToken}))
+
 BEName = input("bedrock edition username (caps matter):")
 
-user = Account(email,password)
 
-user.clientToken = input("client token (leave blank if you've never used this before):")
-if user.clientToken == "":
-    user.clientToken = user.gen_uuid()
-
-print("Your user token is \"{0}\"\nMake sure you save this somewhere you'll remember it. This is not sensitive data.".format(user.clientToken))
 user.authenticate()
 if user.validate():
    print("logged in")
@@ -19,7 +42,9 @@ user.realm_worlds()
 for i in user.realms:
     print("[{0}] {1}".format(user.realms.index(i),i.name))
 realm = user.realms[int(input("which one?"))]
-ip = realm.join().split(":")
+joinResponse = realm.join()
+print(joinResponse.text)
+ip = joinResponse.json()["address"].split(":")
 user.invalidate()
 print("logged out")
 print("generating config.yml for geyser")

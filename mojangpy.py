@@ -31,27 +31,28 @@ class Account():
             "clientToken":self.clientToken, \
             "requestUser":True \
         }
-        auth_response = self.session.post("https://authserver.mojang.com/authenticate",json=payload)
-        if not "accessToken" in list(auth_response.json()):
-            raise InputError("either the username or the password was incorrect.",auth_response.text)
-        self.auth_data = auth_response.json()
+        response = self.session.post("https://authserver.mojang.com/authenticate",json=payload)
+        if not "accessToken" in list(response.json()):
+            raise InputError("either the username or the password was incorrect.",response.text)
+        self.auth_data = response.json()
         self.cookie = { \
             "sid":"token:{0}:{1}".format(self.auth_data["accessToken"],self.auth_data["selectedProfile"]["id"]), \
             "user":self.auth_data["selectedProfile"]["name"], \
             "version":"1.16.4"\
         }
+        return response
     def signout(self):
         payload = { \
             "username":self.username, \
             "password":self.password \
         }
-        self.session.post("https://authserver.mojang.com/signout",json=payload)
+        return self.session.post("https://authserver.mojang.com/signout",json=payload)
     def invalidate(self):
         payload = { \
             "accessToken": self.auth_data["accessToken"], \
             "clientToken": self.auth_data["clientToken"] \
         }
-        self.session.post("https://authserver.mojang.com/invalidate",json=payload)
+        return self.session.post("https://authserver.mojang.com/invalidate",json=payload)
     def validate(self):
         payload = { \
             "accessToken": self.auth_data["accessToken"], \
@@ -70,25 +71,26 @@ class Account():
             "clientToken": self.auth_data["clientToken"], \
             "requestUser": True \
         }
-        self.auth_response = self.session.post("https://authserver.mojang.com/refresh",json=payload)
-        self.auth_data = self.auth_response.json()
+        response = self.session.post("https://authserver.mojang.com/refresh",json=payload)
+        self.auth_data = response.json()
         self.cookie = { \
             "sid":"token:{0}:{1}".format(self.auth_data["accessToken"],self.auth_data["selectedProfile"]["id"]), \
             "user":self.auth_data["selectedProfile"]["name"], \
             "version":"1.16.4"\
         }
+        return response
     def realm_worlds(self):
         response = self.session.get("https://pc.realms.minecraft.net/worlds",cookies=self.cookie)
-        print(response,response.text)
         self.realms = []
         for i in response.json()["servers"]:
             self.realms.append(Realm(self,i))
+        return response
     def realm_invites(self):
         response = self.session.get("https://pc.realms.minecraft.net/invites/pending",cookies=self.cookie)
-        print(response,response.text)
         self.invites = []
         for i in response.json()["invites"]:
             self.invites.append(RealmInvite(self,i))
+        return response
 
 class Realm():
     def __init__(self,account,data):
@@ -100,7 +102,7 @@ class Realm():
         self.state = data["state"]
         self.account = account
     def join(self):
-        return self.account.session.get("https://pc.realms.minecraft.net/worlds/v1/{0}/join/pc".format(self.id),cookies=self.account.cookie).json()["address"]
+        return self.account.session.get("https://pc.realms.minecraft.net/worlds/v1/{0}/join/pc".format(self.id),cookies=self.account.cookie)
 
 class RealmInvite():
     def __init__(self,account,data):
